@@ -19,9 +19,9 @@ type loginCredentials struct {
 }
 
 type AnalysisRequest struct {
-	Customer      Customer       `json:"customer,omitempty"`
+	Customer      *Customer      `json:"customer,omitempty"`
 	BankStatement *BankStatement `json:"bankStatement,omitempty"`
-	Pdf           string         `json:"pdf,omitempty"`
+	Pdf           []byte         `json:"pdf,omitempty"`
 	BankCode      string         `json:"bank_code,omitempty"`
 	CustomerId    string         `json:"customer_id,omitempty"`
 }
@@ -41,4 +41,8 @@ type Customer struct {
 	LastName  string `json:"lastName"`
 	FirstName string `json:"firstName"`
 	Phone     string `json:"phone"`
+}
+
+func NewCustomer(id string, email string, lastName string, firstName string, phone string) *Customer {
+	return &Customer{Id: id, Email: email, LastName: lastName, FirstName: firstName, Phone: phone}
 }
