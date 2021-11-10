@@ -8,8 +8,11 @@ import (
 	"github.com/0sax/err2"
 	"io"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
+	"os"
 	"reflect"
+	"strings"
 )
 
 func (c *Client) standardRequest(method, endpoint string, body interface{}, response interface{}) (err error) {
@@ -42,7 +45,7 @@ func preparePayload(body interface{}) (io.Reader, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("\nBody:\n%+v", b)
+	fmt.Printf("\nBody:\n%+v", string(b))
 	return bytes.NewReader(b), nil
 }
 
@@ -91,15 +94,105 @@ func makeRequest(
 			err)
 		return err
 	}
-	//
-	//if resp.StatusCode == 200 || resp.StatusCode == 201 {
-	//	return nil
-	//}
-	//
-	//err = Error{
-	//	Code:     resp.StatusCode,
-	//	Body:     string(b),
-	//	Endpoint: req.URL.String(),
-	//}
+
 	return err
+}
+
+func (c *Client) multiPartFormRequest(endpoint string, fields []multipartField, response interface{}) (err error) {
+
+	fmt.Printf("\nBaseUrl:\n%v", c.baseurl)
+	fmt.Printf("\nEndpoint:\n%v", endpoint)
+	fmt.Printf("\nMethod:\n%v", "POST")
+
+	var pl io.Reader
+
+	pl, boundary, err := prepareMultiPartPayload(fields)
+	if err != nil {
+		return
+	}
+
+	headers := map[string]string{
+		"Authorization": "Bearer " + c.token,
+		"Content-Type":  boundary,
+	}
+
+	err = makeRequest("POST", c.baseurl+endpoint, pl, headers, response)
+	return
+
+}
+
+func prepareMultiPartPayload(fields []multipartField) (
+	io.Reader, string, error) {
+	payload := &bytes.Buffer{}
+	writer := multipart.NewWriter(payload)
+
+	for _, mpf := range fields {
+		if mpf.HasFile() {
+
+			//File Field
+			fw, err := writer.CreateFormFile(mpf.Key, mpf.FileName)
+			if err != nil {
+				return nil, "", err
+			}
+
+			//file, err := os.Create(mpf.FileName)
+			//if err != nil {
+			//	return nil, "", err
+			//}
+			//defer file.Close()
+
+			err = ioutil.WriteFile(mpf.FileName, mpf.File, 0644)
+			if err != nil {
+				return nil, "", err
+			}
+
+			file, err := os.Open(mpf.FileName)
+			if err != nil {
+				return nil, "", err
+			}
+
+			defer file.Close()
+
+			//_, err = file.Write(mpf.File)
+			//if err != nil {
+			//	return nil, "", err
+			//}
+
+			_, err = io.Copy(fw, file)
+			if err != nil {
+				return nil, "", err
+			}
+
+		} else {
+			//Text Field
+			fw, err := writer.CreateFormField(mpf.Key)
+			if err != nil {
+				return nil, "", err
+			}
+
+			_, err = io.Copy(fw, strings.NewReader(mpf.Text))
+			if err != nil {
+				return nil, "", err
+			}
+		}
+	}
+
+	err := writer.Close()
+	if err != nil {
+		return nil, "", err
+	}
+
+	return bytes.NewReader(payload.Bytes()), writer.FormDataContentType(), nil
+
+}
+
+type multipartField struct {
+	Key      string
+	Text     string
+	File     []byte
+	FileName string
+}
+
+func (mpf *multipartField) HasFile() bool {
+	return mpf.File != nil
 }

@@ -16,3 +16,20 @@ type CustomTransaction struct {
 	Date      string `json:"date"`
 	Balance   int    `json:"balance"`
 }
+
+func NewCustomStatement() *CustomStatement {
+	return &CustomStatement{}
+}
+
+func (ms *CustomStatement) AddTransaction(
+	amt, balance int,
+	id, date, narr, debitOrCredit string) {
+	ms.Statement = append(ms.Statement, CustomTransaction{
+		Id:        id,
+		Amount:    amt,
+		Date:      date,
+		Narration: narr,
+		Type:      debitOrCredit,
+		Balance:   balance,
+	})
+}
