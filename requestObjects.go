@@ -1,4 +1,4 @@
-package indicina
+package goDecide
 
 type Client struct {
 	token    string

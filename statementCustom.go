@@ -1,4 +1,4 @@
-package indicina
+package goDecide
 
 type CustomStatement struct {
 	Statement []CustomTransaction `json:"statement"`

@@ -1,4 +1,4 @@
-package indicina
+package goDecide
 
 import (
 	"encoding/base64"
@@ -15,7 +15,7 @@ const (
 	Custom = "custom"
 )
 
-// Login uses your indicina ID and Key and returns a client with methods for
+// Login uses your goDecide ID and Key and returns a client with methods for
 // performing Decide API functions
 func Login(clientId, clientSecret, baseUrl string) (cl *Client, err error) {
 

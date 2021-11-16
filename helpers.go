@@ -1,4 +1,4 @@
-package indicina
+package goDecide
 
 import (
 	"bytes"
@@ -53,7 +53,7 @@ func makeRequest(
 	method, url string, body io.Reader,
 	headers map[string]string, responseTarget interface{}) error {
 	if reflect.TypeOf(responseTarget).Kind() != reflect.Ptr {
-		return errors.New("indicina: responseTarget must be a pointer to a struct for JSON unmarshalling")
+		return errors.New("goDecide: responseTarget must be a pointer to a struct for JSON unmarshalling")
 	}
 
 	req, err := http.NewRequest(method, url, body)

@@ -1,4 +1,4 @@
-module indicina
+module github.com/0sax/goDecide
 
 go 1.15
 

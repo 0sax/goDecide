@@ -1,4 +1,4 @@
-package indicina
+package goDecide
 
 type MonoStatement struct {
 	Paging struct {

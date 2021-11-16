@@ -1,4 +1,4 @@
-package indicina
+package goDecide
 
 type loginResponse struct {
 	Status string `json:"status"`
