@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
-	"os"
 	"reflect"
 	"strings"
 )
@@ -135,30 +134,8 @@ func prepareMultiPartPayload(fields []multipartField) (
 				return nil, "", err
 			}
 
-			//file, err := os.Create(mpf.FileName)
-			//if err != nil {
-			//	return nil, "", err
-			//}
-			//defer file.Close()
-
-			err = ioutil.WriteFile(mpf.FileName, mpf.File, 0644)
-			if err != nil {
-				return nil, "", err
-			}
-
-			file, err := os.Open(mpf.FileName)
-			if err != nil {
-				return nil, "", err
-			}
-
-			defer file.Close()
-
-			//_, err = file.Write(mpf.File)
-			//if err != nil {
-			//	return nil, "", err
-			//}
-
-			_, err = io.Copy(fw, file)
+			reader := bytes.NewReader(mpf.File)
+			_, err = io.Copy(fw, reader)
 			if err != nil {
 				return nil, "", err
 			}
