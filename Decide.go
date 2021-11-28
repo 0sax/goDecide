@@ -114,7 +114,7 @@ func (cl *Client) ParseCustomStatement(
 
 }
 
-func (cl *Client) ParsePDFUpload(file []byte, fileString *string, bankCode, customerId string) (
+func (cl *Client) ParsePDFUpload(file []byte, fileString *string, bankCode, customerId, password string) (
 	sum *PDFStatementResponse, err error) {
 
 	var pdf []byte
@@ -136,6 +136,12 @@ func (cl *Client) ParsePDFUpload(file []byte, fileString *string, bankCode, cust
 		{"pdf", "", pdf, "statement101.pdf"},
 		{"bank_code", bankCode, nil, ""},
 		{"customer_id", customerId, nil, ""},
+	}
+
+	if password != "" {
+		mpfs = append(mpfs,
+			multipartField{"pdf_password", password, nil, ""},
+		)
 	}
 
 	var ar analysisResponsePDF
